@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>ARE YOU SURE?</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    background:black;
+    overflow:hidden;
+    font-family:"Courier New", monospace;
+    height:100vh;
+}
+
+/* ===== FUNDO BINÁRIO ===== */
+canvas{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+}
+
+/* ===== TEXTO PRINCIPAL ===== */
+#main-text{
+    position:absolute;
+    top:40%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:96px;
+    color:white;
+    text-align:center;
+    text-shadow:
+        0 0 10px white,
+        0 0 25px rgba(255,255,255,.7);
+    transition:.3s;
+    z-index:5;
+}
+
+/* ===== BOTÕES ===== */
+#buttons{
+    position:absolute;
+    top:60%;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:5;
+}
+button{
+    background:black;
+    color:white;
+    border:2px solid white;
+    font-size:28px;
+    padding:14px 50px;
+    margin:10px;
+    cursor:pointer;
+}
+button.clicked{
+    background:red;
+    border-color:red;
+}
+
+/* ===== GLITCH TEXTO ===== */
+.glitch{
+    animation:glitch 1.5s infinite;
+}
+@keyframes glitch{
+    0%{text-shadow:2px 0 red,-2px 0 cyan}
+    25%{text-shadow:-2px 0 red,2px 0 cyan}
+    50%{text-shadow:2px 2px red,-2px -2px cyan}
+    75%{text-shadow:-2px 2px red,2px -2px cyan}
+    100%{text-shadow:0 0 15px currentColor}
+}
+
+/* ===== GLITCH QUADRADOS ===== */
+#glitch-boxes{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:3;
+}
+.glitch-box{
+    position:absolute;
+    width:20px;
+    height:20px;
+    opacity:.7;
+    animation:boxFlash .2s steps(1) infinite;
+}
+@keyframes boxFlash{
+    0%{opacity:0}
+    50%{opacity:.8}
+    100%{opacity:0}
+}
+
+/* ===== ERROR ===== */
+#error{
+    position:fixed;
+    inset:0;
+    background:black;
+    color:red;
+    font-size:72px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+}
+
+/* ===== LINK FINAL ===== */
+#final-link{
+    position:absolute;
+    top:72%;
+    left:50%;
+    transform:translateX(-50%);
+    display:none;
+    z-index:6;
+}
+#final-link a{
+    color:#00ffee;
+    font-size:28px;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div id="main-text">ARE YOU SURE?</div>
+
+<div id="buttons">
+    <button id="yes">YES</button>
+    <button id="no">NO</button>
+</div>
+
+<div id="final-link">
+<a href="https://recordsauroraresearchcenter-byte.github.io/nullaccess/" target="_blank">
+ACCESS GRANTED
+</a>
+</div>
+
+<div id="glitch-boxes"></div>
+<div id="error">ERROR_000666</div>
+
+<audio id="bg" loop>
+    <source src="background.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* ===== MATRIX BINÁRIO ===== */
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+const fontSize=18;
+const columns=Math.floor(canvas.width/fontSize);
+const drops=Array(columns).fill(1);
+
+function drawMatrix(){
+    ctx.fillStyle="rgba(0,0,0,0.08)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle="#00ff66";
+    ctx.font=fontSize+"px monospace";
+
+    for(let i=0;i<drops.length;i++){
+        const text=Math.random()>0.5?"0":"1";
+        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+        if(drops[i]*fontSize>canvas.height && Math.random()>0.975){
+            drops[i]=0;
+        }
+        drops[i]++;
+    }
+}
+setInterval(drawMatrix,50);
+
+/* ===== GLITCH BOXES ===== */
+const boxContainer=document.getElementById("glitch-boxes");
+function spawnGlitchBox(){
+    const box=document.createElement("div");
+    box.className="glitch-box";
+    box.style.left=50+Math.random()*200-100+"px";
+    box.style.top=50+Math.random()*200-100+"px";
+    box.style.background=Math.random()>0.5?"red":"cyan";
+    boxContainer.appendChild(box);
+    setTimeout(()=>box.remove(),200);
+}
+setInterval(spawnGlitchBox,120);
+
+/* ===== INTERAÇÃO ===== */
+const text=document.getElementById("main-text");
+const yes=document.getElementById("yes");
+const no=document.getElementById("no");
+const audio=document.getElementById("bg");
+const error=document.getElementById("error");
+const link=document.getElementById("final-link");
+
+let state=0;
+function playAudio(){
+    audio.volume=0.5;
+    audio.play().catch(()=>{});
+}
+
+no.onclick=()=>{
+    playAudio();
+    no.classList.add("clicked");
+    if(state===0){
+        text.classList.add("glitch");
+        text.style.color="red";
+        state=1;
+    }else{
+        error.style.display="flex";
+    }
+};
+
+yes.onclick=()=>{
+    playAudio();
+    yes.classList.add("clicked");
+    if(state===0){
+        text.textContent="01000011 01000101 01010010 01010100 01000101 01011010 01000001 00111111";
+        text.style.color="red";
+        text.classList.add("glitch");
+        state=1;
+    }else{
+        text.textContent="WELCOME USER_XXXXXXXX";
+        text.style.color="#00ffee";
+        text.classList.add("glitch");
+        link.style.display="block";
+    }
+};
+</script>
+
+</body>
+</html>
